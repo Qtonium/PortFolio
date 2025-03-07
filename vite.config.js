@@ -9,7 +9,7 @@ const outDir = `dist/${env}`;
 
 export default defineConfig({
   plugins: [vue()],
-  base: env === 'release' ? '/PortFolio/' : '/develop/',
+  base: env === 'release' ? '/Portfolio/' : '/develop/',
   build: {
     outDir,
     sourcemap: env !== 'release', // Enable sourcemaps for non-production

@@ -1,0 +1,48 @@
+name: Build PortFolio
+
+on:
+  push:
+    branches:
+      - release
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build for environment
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
+            echo "Building for RELEASE"
+            npm run build:release
+            echo "VITE_ENV=release" >> $GITHUB_ENV
+            echo "ARTIFACT_NAME=dist-release" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
+            echo "Building for DEVELOP"
+            npm run build:develop
+            echo "VITE_ENV=develop" >> $GITHUB_ENV
+            echo "ARTIFACT_NAME=dist-develop" >> $GITHUB_ENV
+          else
+            echo "Unknown branch, exiting."
+            exit 1
+          fi
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: dist/${{ env.VITE_ENV }}/ 
+          retention-days: 1 
